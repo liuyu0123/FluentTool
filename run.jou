@@ -1,0 +1,68 @@
+; run.jou
+; Fluent 主控 Journal（纯 TUI/Scheme，无 GUI 操作）
+;
+; 由 Python 生成 temp/params.scm 后，本文件即具备所需全部参数。
+; 使用方式：
+;   python run.py
+; 或在 Fluent 控制台中：
+;   (load "run.jou")
+
+/file/set-tui-version "25.2"
+
+; ============================================================
+; 1. 加载参数与监测点列表
+; ============================================================
+(load "temp/params.scm")
+
+(display "============================================================") (newline)
+(display (format #f " Fluent Automation Run~%"))
+(display (format #f " Case: ~a~%" case-data-path))
+(display (format #f " Probes: ~a x ~a x ~a = ~a~%" Nx Ny Nz (length probe-list)))
+(display (format #f " Variables: ~a~%" (map car var-list)))
+(display (format #f " Time Step: ~a s, Steps: ~a, Iter/Step: ~a~%"
+                 time-step-size number-of-time-steps max-iterations-per-time-step))
+(display "============================================================") (newline)
+
+; ============================================================
+; 2. 读取 Case / Data
+; ============================================================
+(ti-menu-load-string (format #f "/file/read-case-data \"~a\"" case-data-path))
+
+; ============================================================
+; 3. 创建监测点
+; ============================================================
+(load "create_points.scm")
+(create-all-probes)
+
+; ============================================================
+; 4. 创建 Report Definitions 与 Report File
+; ============================================================
+(load "setup_reports.scm")
+(setup-reports)
+
+; ============================================================
+; 5. 初始化
+; ============================================================
+(ti-menu-load-string "/solve/initialize/hyb-initialization")
+
+; ============================================================
+; 6. 设置时间步长
+; ============================================================
+(ti-menu-load-string (format #f "/solve/set/time-step-size ~a" time-step-size))
+
+; ============================================================
+; 7. 运行瞬态计算
+; ============================================================
+(ti-menu-load-string
+  (format #f "/solve/dual-time-iterate ~a ~a"
+          number-of-time-steps max-iterations-per-time-step))
+
+; ============================================================
+; 8. 保存最终 data（可选）
+; ============================================================
+(ti-menu-load-string (format #f "/file/write-data \"~a\"" final-data-path))
+
+; ============================================================
+; 9. 退出 Fluent
+; ============================================================
+(ti-menu-load-string "/exit yes")

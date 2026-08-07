@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Fluent 运行时生成文件
+temp/
+*.out
+*.trn
+*.log
+
+# 结果目录（如果不想让 Git 跟踪大量结果）
+# 注释掉下一行如果你希望跟踪结果文件
+Results/*/
+
+# 用户可能放置的大文件
+*.cas.h5
+*.dat.h5
+*.msh
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,79 @@
+# Fluent 自动化仿真平台配置文件
+# 修改此文件即可调整工况、网格密度、物理量等，无需改动脚本主体。
+
+# ==========================
+# 1. 仿真工况参数
+# ==========================
+case:
+  # 基础 Case/Data 文件名（放在 Case/ 目录下）
+  # 若 Case/ 下不存在，run.py 会自动从 FluentTool 上级目录复制同名文件
+  case_file: "fluent_inited.cas.h5"
+  data_file: "fluent_inited.dat.h5"
+
+# 振动/来流等工况参数（用于结果命名与 metadata）
+condition:
+  frequency_hz: 40        # 振动频率 [Hz]
+  amplitude_mm: 1.0       # 振动振幅 [mm]
+  velocity_ms: 0.2        # 来流速度 [m/s]
+  vibration_direction: 2  # 振动方向：0=x, 1=y, 2=z
+
+# ==========================
+# 2. 监测点网格参数
+# ==========================
+probe_grid:
+  Nx: 11        # x 方向点数
+  Ny: 11        # y 方向点数
+  Nz: 5         # z 方向点数
+
+  dx: 0.01      # x 方向间距 [m]
+  dy: 0.01      # y 方向间距 [m]
+  dz: 0.01      # z 方向间距 [m]
+
+  xmin: 0.00    # x 起点 [m]
+  ymin: -0.05   # y 起点 [m]
+  zmin: 0.00    # z 起点 [m]
+
+# ==========================
+# 3. 待监测物理量
+# ==========================
+variables:
+  pressure: true        # 压力（建议 V1 先只开压力）
+  velocity_x: false     # x 方向速度
+  velocity_y: false     # y 方向速度
+  velocity_z: false     # z 方向速度
+
+# ==========================
+# 4. Fluent 求解控制
+# ==========================
+solver:
+  # 计算时间步长 [s]
+  time_step_size: 0.001
+  # 总时间步数
+  number_of_time_steps: 100
+  # 每个时间步最大迭代次数
+  max_iterations_per_time_step: 20
+  # 瞬态求解格式：first-order-implicit / second-order-implicit / etc.
+  time_integration: "second-order-implicit"
+
+# ==========================
+# 5. 输出与目录
+# ==========================
+paths:
+  # 结果根目录
+  results_root: "Results"
+  # 当前工况结果子目录命名格式（支持占位符）
+  # 可用占位符：{frequency_hz}, {amplitude_mm}, {velocity_ms}, {Nx}, {Ny}, {Nz}
+  case_name_format: "{frequency_hz}Hz_{amplitude_mm}mm_{velocity_ms}ms"
+
+# ==========================
+# 6. Fluent 启动设置
+# ==========================
+fluent:
+  # Fluent 可执行文件路径；留空则自动从 PATH 查找 "fluent"
+  executable: ""
+  # 维度：3d 或 2d
+  dimension: "3d"
+  # 是否显示 GUI：true=显示，false=后台运行
+  show_gui: false
+  # 处理器核数
+  num_processors: 4
