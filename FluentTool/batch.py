@@ -20,7 +20,7 @@ batch.py
 import copy
 import yaml
 from pathlib import Path
-from run import load_config, run_case
+from FluentTool.run import load_config, run_case
 
 ROOT = Path(__file__).parent.resolve()
 CONFIG_FILE = ROOT / "config.yaml"
