@@ -22,6 +22,8 @@ import json
 import yaml
 import subprocess
 import glob
+import threading
+import time
 from pathlib import Path
 from itertools import product
 
@@ -180,7 +182,8 @@ def write_params_scm(cfg):
     lines.append(";;; 监测点列表 ((name x y z) ...)")
     lines.append("(define probe-list '( ")
     for name, x, y, z in probes:
-        lines.append(f'  ("{name}" {x:.6f} {y:.6f} {z:.6f})')
+        # 坐标写成字符串，避免 Fluent Scheme 对浮点格式 (~,6f) 支持不一致
+        lines.append(f'  ("{name}" "{x:.6f}" "{y:.6f}" "{z:.6f}")')
     lines.append("))")
     lines.append("")
     lines.append(";;; 变量列表 ((短名 . Fluent field) ...)")
@@ -200,6 +203,24 @@ def write_params_scm(cfg):
     return result_dir, report_out
 
 
+def _search_ansys_installations():
+    """搜索所有可用盘符下的 ANSYS Inc 安装目录，返回 fluent.exe 候选路径列表"""
+    candidates = []
+    versions = ["v252", "v251", "v250", "v242", "v241", "v240", "v232", "v231", "v230"]
+    drives = [f"{d}:" for d in "CDEFGHIJKLMNOPQRSTUVWXYZ" if Path(f"{d}:").exists()]
+
+    for drive in drives:
+        for prog in ["Program Files", "Program Files (x86)"]:
+            base = Path(drive) / prog / "ANSYS Inc"
+            if not base.exists():
+                continue
+            for ver in versions:
+                exe = base / ver / "fluent" / "ntbin" / "win64" / "fluent.exe"
+                if exe.exists():
+                    candidates.append(str(exe))
+    return candidates
+
+
 def find_fluent_executable(cfg):
     """查找 Fluent 可执行文件"""
     exe = cfg["fluent"].get("executable", "").strip()
@@ -213,28 +234,101 @@ def find_fluent_executable(cfg):
             return found
         raise FileNotFoundError(f"配置的 Fluent 可执行文件不存在: {exe}")
 
-    # 自动查找
+    # 自动查找：先 PATH，再常见安装路径
     found = shutil.which("fluent")
     if found:
         return found
 
-    # 常见 Windows 安装路径
-    candidates = [
-        r"C:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe",
-        r"C:\Program Files\ANSYS Inc\v251\fluent\ntbin\win64\fluent.exe",
-        r"C:\Program Files\ANSYS Inc\v250\fluent\ntbin\win64\fluent.exe",
-        r"C:\Program Files\ANSYS Inc\v242\fluent\ntbin\win64\fluent.exe",
-        r"C:\Program Files\ANSYS Inc\v241\fluent\ntbin\win64\fluent.exe",
-    ]
-    for cand in candidates:
-        if Path(cand).exists():
-            return cand
+    candidates = _search_ansys_installations()
+    if candidates:
+        print(f"[INFO] 自动找到 Fluent: {candidates[0]}")
+        return candidates[0]
 
-    raise FileNotFoundError("找不到 fluent 可执行文件。请在 config.yaml 中配置 fluent.executable。")
+    raise FileNotFoundError(
+        "找不到 fluent 可执行文件。请在 config.yaml 中配置 fluent.executable，\n"
+        "例如: \"F:/Program Files/ANSYS Inc/v252/fluent/ntbin/win64/fluent.exe\""
+    )
+
+
+def _is_useful_transcript_line(line):
+    """过滤 Fluent transcript 中有信息量的行"""
+    line = line.strip()
+    if not line:
+        return False
+    # 过滤纯 TUI / Scheme 命令回显
+    if line.startswith("/") or line.startswith("("):
+        return False
+    # 保留关键状态词
+    keywords = [
+        "Done", "iterations", "Time Step", "error", "Error",
+        "Initialize", "hyb", "dual-time", "Creating", "Created",
+        "Report", "point", "surface", "reading", "writing",
+    ]
+    return any(kw.lower() in line.lower() for kw in keywords)
+
+
+def _tail_transcript(process, transcript_path, stop_event):
+    """后台跟踪 transcript 文件并打印关键行"""
+    # 等待 transcript 文件出现
+    while not transcript_path.exists() and process.poll() is None:
+        time.sleep(0.5)
+
+    if not transcript_path.exists():
+        return
+
+    with open(transcript_path, "r", encoding="utf-8", errors="ignore") as f:
+        while not stop_event.is_set() and process.poll() is None:
+            line = f.readline()
+            if line:
+                line = line.rstrip()
+                if _is_useful_transcript_line(line):
+                    print(f"[Fluent] {line}")
+            else:
+                time.sleep(0.5)
+
+
+def _monitor_report_progress(process, report_path, total_steps, stop_event):
+    """根据报告文件行数显示计算进度"""
+    # 等待报告文件出现
+    while not report_path.exists() and process.poll() is None:
+        time.sleep(1)
+
+    if not report_path.exists():
+        return
+
+    last_current = -1
+    while not stop_event.is_set() and process.poll() is None:
+        try:
+            with open(report_path, "r", encoding="utf-8", errors="ignore") as f:
+                lines = sum(1 for _ in f)
+            # 第一行为表头
+            current = max(0, lines - 1)
+            current = min(current, total_steps)
+            if current != last_current:
+                pct = current / total_steps * 100 if total_steps > 0 else 0
+                bar_len = 30
+                filled = int(bar_len * current / total_steps) if total_steps > 0 else 0
+                bar = "█" * filled + "░" * (bar_len - filled)
+                print(f"[Progress] 瞬态计算 |{bar}| {current}/{total_steps} ({pct:.1f}%)")
+                last_current = current
+        except Exception:
+            pass
+        time.sleep(2)
+
+    # 最后刷新一次
+    if report_path.exists():
+        try:
+            with open(report_path, "r", encoding="utf-8", errors="ignore") as f:
+                lines = sum(1 for _ in f)
+            current = min(max(0, lines - 1), total_steps)
+            pct = current / total_steps * 100 if total_steps > 0 else 0
+            print(f"[Progress] 瞬态计算 |{'█' * 30}| {current}/{total_steps} ({pct:.1f}%)")
+        except Exception:
+            pass
 
 
 def run_fluent(cfg):
-    """启动 Fluent 执行 run.jou"""
+    """启动 Fluent 执行 run.jou，并实时显示进度"""
     fluent_exe = find_fluent_executable(cfg)
     dim = cfg["fluent"]["dimension"]
     np = cfg["fluent"]["num_processors"]
@@ -249,14 +343,63 @@ def run_fluent(cfg):
     if not show_gui:
         cmd.append("-hidden")
 
+    total_steps = cfg["solver"]["number_of_time_steps"]
+    transcript_path = ROOT / "temp" / "fluent_run.trn"
+    report_path = ROOT / "pressure_signal_record.out"
+
+    # 清理旧 transcript
+    if transcript_path.exists():
+        transcript_path.unlink()
+
     print("[INFO] 启动 Fluent...")
     print(f"[CMD] {' '.join(cmd)}")
 
+    process = subprocess.Popen(
+        cmd,
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="ignore"
+    )
+
+    stop_event = threading.Event()
+
+    # 启动 transcript 跟踪线程
+    transcript_thread = threading.Thread(
+        target=_tail_transcript,
+        args=(process, transcript_path, stop_event),
+        daemon=True
+    )
+    transcript_thread.start()
+
+    # 启动报告文件进度监控线程
+    progress_thread = threading.Thread(
+        target=_monitor_report_progress,
+        args=(process, report_path, total_steps, stop_event),
+        daemon=True
+    )
+    progress_thread.start()
+
+    # 主线程读取 Fluent 标准输出（-hidden 模式下通常内容很少）
     try:
-        subprocess.run(cmd, cwd=ROOT, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Fluent 运行失败，返回码: {e.returncode}")
-        sys.exit(1)
+        for line in process.stdout:
+            line = line.rstrip()
+            if line.strip():
+                print(f"[Fluent] {line}")
+    except Exception as e:
+        print(f"[WARN] 读取 Fluent 输出时出错: {e}")
+
+    process.wait()
+    stop_event.set()
+    transcript_thread.join(timeout=5)
+    progress_thread.join(timeout=5)
+
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(process.returncode, cmd)
+
+    print("[INFO] Fluent 已退出")
 
 
 def find_report_file(result_dir, cfg):

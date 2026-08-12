@@ -69,8 +69,9 @@ paths:
 # 6. Fluent 启动设置
 # ==========================
 fluent:
-  # Fluent 可执行文件路径；留空则自动从 PATH 查找 "fluent"
-  executable: ""
+  # Fluent 可执行文件路径；留空则自动从 PATH 及常见安装目录查找 "fluent.exe"
+  # 示例: "F:/Program Files/ANSYS Inc/v252/fluent/ntbin/win64/fluent.exe"
+  executable: "F:/Program Files/ANSYS Inc/v252/fluent/ntbin/win64/fluent.exe"
   # 维度：3d 或 2d
   dimension: "3d"
   # 是否显示 GUI：true=显示，false=后台运行
