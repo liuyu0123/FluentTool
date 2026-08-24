@@ -14,7 +14,7 @@
 ; (display mesh_path)
 
 (define udf_lib_name "libudf_vof")
-(define dipole_depth 0.06)
+(define dipole_depth 0.05)
 ; (define mesh_path "F:/Files/project_fluent/project1_3_Dataset3_Dipole3D_VOF_NoLLS_Nearfield/03_Fluent_2/msh/fluent_10M.msh")
 ; (define udf_path "F:/Files/project_fluent/project1_3_Dataset3_Dipole3D_VOF_NoLLS_Nearfield/03_Fluent_2/msh/udf/move_5.c")
 ; (define output_file_path "F:/Files/project_fluent/project1_3_Dataset3_Dipole3D_VOF_NoLLS_Nearfield/03_Fluent_2/msh/out/pressure_signal_vof.out")
