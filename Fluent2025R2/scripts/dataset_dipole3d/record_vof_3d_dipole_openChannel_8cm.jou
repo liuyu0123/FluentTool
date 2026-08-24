@@ -630,5 +630,5 @@
 
 
 ;=========================================================== Start ==============================================================
-; (cx-gui-do cx-activate-item "Run Calculation*Table1*Table9(Solution Advancement)*Table1*PushButton3(Calculate)")
+(cx-gui-do cx-activate-item "Run Calculation*Table1*Table9(Solution Advancement)*Table1*PushButton3(Calculate)")
 ; (cx-gui-do cx-activate-item "MenuBar*WriteSubMenu*Stop Journal")
