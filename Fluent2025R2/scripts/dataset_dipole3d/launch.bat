@@ -1,0 +1,6 @@
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_5cm.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_6cm.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_7cm.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_8cm.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_9cm.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\record_vof_3d_dipole_openChannel_10cm.jou"
