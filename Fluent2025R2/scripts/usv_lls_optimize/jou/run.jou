@@ -18,7 +18,7 @@
 ;(cx-gui-do cx-set-file-dialog-entries "Select File" '( "msh/mesh_fai0_L0.75.msh") "All Mesh Files (*.msh* *.MSH* )")
 (cx-gui-do cx-set-file-dialog-entries "Select File" (list mesh_path) "All Mesh Files (*.msh* *.MSH* )")
 (cx-use-window-id 51)
-(handle-key "??")`
+(handle-key "??")
 (cx-gui-do cx-activate-item "General*Table1*ButtonBox1(Mesh)*PushButton2(Display)")
 (cx-gui-do cx-set-list-selections "Mesh Display*Table1*Frame3*Frame1*List1(Surfaces)" '( 0 1 3))
 (cx-gui-do cx-activate-item "Mesh Display*Table1*Frame3*Frame1*List1(Surfaces)")
