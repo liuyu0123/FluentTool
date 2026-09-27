@@ -1,0 +1,6 @@
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r0.75.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r1.0.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r1.25.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r1.50.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r2.0.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t6 -i ".\jou\run_fai0_r2.5.jou"
