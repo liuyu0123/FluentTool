@@ -1,0 +1,2 @@
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t12 -i "..\jou\run_fai15_r2.0.jou"
+"F:\Program Files\ANSYS Inc\v252\fluent\ntbin\win64\fluent.exe" 3ddp -t12 -i "..\jou\run_fai15_r2.5.jou"
