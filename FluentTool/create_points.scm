@@ -11,8 +11,8 @@
 
 (define (create-probe name x y z)
   ;; 使用 Fluent TUI 创建 point-surface
-  ;; 语法：/surface/point-surface name x y z
-  (let ((cmd (format #f "/surface/point-surface ~a ~a ~a ~a" name x y z)))
+  ;; 名称和坐标均以字符串形式从 params.scm 传入，避免 Scheme 浮点格式兼容问题
+  (let ((cmd (format #f "/surface/point-surface \"~a\" ~a ~a ~a" name x y z)))
     (ti-menu-load-string cmd)))
 
 (define (create-all-probes)

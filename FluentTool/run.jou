@@ -9,6 +9,9 @@
 
 /file/set-tui-version "25.2"
 
+; 开启 transcript，方便 Python 在终端实时显示进度
+(ti-menu-load-string "/file/start-transcript temp/fluent_run.trn")
+
 ; ============================================================
 ; 1. 加载参数与监测点列表
 ; ============================================================
@@ -63,6 +66,7 @@
 (ti-menu-load-string (format #f "/file/write-data \"~a\"" final-data-path))
 
 ; ============================================================
-; 9. 退出 Fluent
+; 9. 停止 transcript 并退出 Fluent
 ; ============================================================
+(ti-menu-load-string "/file/stop-transcript")
 (ti-menu-load-string "/exit yes")

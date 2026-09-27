@@ -18,8 +18,8 @@
 (define (create-report-definition report-name surface-name field)
   ;; 创建 surface-vertexmax 类型的 report definition
   ;; 单点情况下，vertexmax / vertexavg / vertexmin 结果几乎一致
-  ;; 这里沿用你原 journal 中的 Vertex Maximum 设置
-  (let ((cmd (format #f "/solve/report-definitions/add ~a surface-vertexmax surface-names ~a , field ~a q"
+  ;; 名称含 +/-，需要加引号
+  (let ((cmd (format #f "/solve/report-definitions/add \"~a\" surface-vertexmax surface-names \"~a\" , field ~a q"
                      report-name surface-name field)))
     (ti-menu-load-string cmd)))
 
@@ -31,6 +31,15 @@
         (if (null? rest)
             result
             (loop (string-append result sep (car rest)) (cdr rest))))))
+
+(define (quote-join sep lst)
+  ;; 将列表中每个元素加双引号后连接
+  (if (null? lst)
+      ""
+      (let loop ((result (format #f "\"~a\"" (car lst))) (rest (cdr lst)))
+        (if (null? rest)
+            result
+            (loop (string-append result sep (format #f "\"~a\"" (car rest))) (cdr rest))))))
 
 (define (chunk-list lst size)
   ;; 将列表按 size 大小分块
@@ -84,17 +93,17 @@
     ;; 先创建 report file，并加入第一批 definition
     (let ((first-chunk (car chunks)))
       (ti-menu-load-string
-        (format #f "/solve/report-files/add ~a report-defs ~a , q"
+        (format #f "/solve/report-files/add \"~a\" report-defs ~a , q"
                 report-file-object-name
-                (string-join " " first-chunk))))
+                (quote-join " " first-chunk))))
     ;; 剩余 definition 分批加入
     (let loop ((rest (cdr chunks)) (batch 2))
       (if (not (null? rest))
           (begin
             (ti-menu-load-string
-              (format #f "/solve/report-files/edit ~a add-report-defs ~a"
+              (format #f "/solve/report-files/edit \"~a\" add-report-defs ~a"
                       report-file-object-name
-                      (string-join " " (car rest))))
+                      (quote-join " " (car rest))))
             (display (format #f "    Batch ~a / ~a attached...~%" batch (length chunks)))
             (loop (cdr rest) (+ batch 1)))))
     ;; 设置输出文件名（可选；Fluent 某些版本下该 TUI 行为不一致，
