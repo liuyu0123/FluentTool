@@ -497,6 +497,33 @@
 
 
 
+; =========================================================== Close Energy Function ==============================================================
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Setup|Models|Energy (On)"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Setup|Models|Energy (On)"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Setup|Models|Energy (On)"))
+(cx-gui-do cx-set-toggle-button2 "Energy*Table1(Energy)*ToggleBox1*CheckButton1(Energy Equation)" #f)
+(cx-gui-do cx-activate-item "Energy*Table1(Energy)*ToggleBox1*CheckButton1(Energy Equation)")
+(cx-gui-do cx-activate-item "Energy*PanelButtons*PushButton1(OK)")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Initialization"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Initialization"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Initialization"))
+(cx-gui-do cx-activate-item "Solution Initialization*Table1*Frame12*PushButton2(Initialize)")
+(cx-gui-do cx-activate-item "Question*OK")
+(cx-gui-do cx-activate-item "Solution Initialization*Table1*Frame13*PushButton1(Patch)")
+(cx-gui-do cx-set-list-selections "Patch*Table1*Frame1*Frame1*Table2*DropDownList1(Phase)" '( 1))
+(cx-gui-do cx-activate-item "Patch*Table1*Frame1*Frame1*Table2*DropDownList1(Phase)")
+(cx-gui-do cx-set-list-selections "Patch*Table1*Frame1*Frame1*Table2*List2(Variable)" '( 0))
+(cx-gui-do cx-activate-item "Patch*Table1*Frame1*Frame1*Table2*List2(Variable)")
+(cx-gui-do cx-activate-item "Patch*PanelButtons*PushButton3(Patch)")
+(cx-gui-do cx-activate-item "Patch*PanelButtons*PushButton1(Close)")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Run Calculation"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Run Calculation"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Run Calculation"))
+; =========================================================== Close Energy Function End ==============================================================
+
 
 
 
